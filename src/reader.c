@@ -12,73 +12,96 @@
 
 #include "lemin.h"
 
-static int	ft_checkname(char *name)
+int			ft_validvertex(char *str, char **name, int *x, int *y)
 {
-	// TODO: add dash checking
-	if (!name || ft_strlen(name) == 0)
+	int		i;
+
+	if (str[0] == 'L')
 		return (0);
-	if (*name == 'L')
+	i = -1;
+	while ((str[++i] != '\0') && (str[i] != ' ') && (str[i] != '-'))
+		i++;
+	if ((str[i] == '\0') || (str[i] == '-'))
 		return (0);
+	*name = ft_strsub(str, 0, (size_t)i);
+	str += (i + 1);
+	i = (str[0] == '-') ? 1 : 0;
+	while (ft_isdigit(str[i]))
+		i++;
+	if (str[0] != ' ')
+		return (0);
+	*x = ft_atoi(str);
+	str += (i + 1);
+	i = (str[0] == '-') ? 1 : 0;
+	while (ft_isdigit(str[i]))
+		i++;
+	if (str[i] != '\0')
+		return (0);
+	*y = ft_atoi(str);
 	return (1);
 }
 
-char 		*ft_fillgraph(t_graph *graph, int fd)
+int			ft_comment(char *str, int *label)
+{
+	if (*str == '#')
+	{
+		if (ft_strequ(str, "##start"))
+			*label = 1;
+		if (ft_strequ(str, "##end"))
+			*label = 2;
+		return (1);
+	}
+	return (0);
+}
+
+int 		ft_fillgraph(t_graph *graph, int fd, char **str)
 {
 	t_vertex	*tmp;
-	char		*str;
 	int			label;
-	char		**buff;
+	char 		*name;
+	int 		x;
+	int 		y;
 
-	label = 0;
-	while (get_next_line(fd, &str) > 0 && !(ft_strchr(str, '-')))
+	while (get_next_line(fd, str) > 0 && !(ft_strchr(*str, '-')))
 	{
-		if (*str == '#')
-		{
-			label = (ft_strequ(str, "##start")) ? 1 : label;
-			label = (ft_strequ(str, "##end")) ? 2 : label;
-			continue;
-		}
-		buff = ft_strsplit(str, ' ');
-		tmp = graph->head;
-		graph->head = ft_newvertex(buff[0], ft_atoi(buff[1]), ft_atoi(buff[2]));
-		graph->head->next = tmp;
-		if (label == 1)
-			graph->start = graph->head;
+		if (ft_comment(*str, &label))
+			continue ;
+		tmp = NULL;
+		if (ft_validvertex(*str, &name, &x, &y))
+			tmp = ft_newvertex(name, x, y);
+		ft_strdel(&name);
+		if (!tmp)
+			return (0);
+		tmp->next = graph->head;
+		graph->head = tmp;
 		if (label == 2)
+			graph->start = graph->head;
+		if (label == 3)
 			graph->end = graph->head;
+		ft_strdel(str);
 	}
-	return (str);
+	return (1);
 }
 
 int 		ft_linkgraph(t_graph *graph, int fd, char **str)
 {
-	t_vertex	*tmp;
-	char		**name;
+	char	*name1;
+	char	*name2;
 
 	while (get_next_line(fd, str) > 0)
 	{
 		if (**str == '#')
-			continue ;
-		name = ft_strsplit(*str, '-');
-		tmp = graph->head;
-		while (tmp && !(ft_strequ(tmp->name, name[0])))
-			tmp = tmp->next;
-		if (!tmp)
-			continue ;
-		if (!(tmp->link))
-			tmp->link = ft_newlink(tmp, graph->head, name[1]);
-		else
 		{
-			while (tmp->link->next)
-			{
-				if (ft_strequ(((t_vertex *)tmp->link->content)->name, name[1]))
-					break;
-				tmp->link = tmp->link->next;
-			}
-			if (!(tmp->link->next))
-				tmp->link->next = ft_newlink(tmp, graph->head, name[1]);
+			ft_strdel(str);
+			continue ;
 		}
+		name1 = ft_strsub(*str, 0, ft_strchr(*str, '-') - *str);
+		name2 = ft_strchr(*str, '-') + 1;
+		ft_linkvertex(name1, name2, graph->head);
+		ft_strdel(str);
+		ft_strdel(&name1);
 	}
+	ft_strdel(str);
 	return (1);
 }
 
@@ -89,16 +112,22 @@ int			ft_readfile(t_graph *graph, int fd)
 	int		ants;
 
 	if (get_next_line(fd, &str) < 1)
+	{
+		ft_strdel(&str);
 		return (0);
+	}
 	i = -1;
 	while (str[++i] != '\0')
 	{
 		if (!ft_isdigit(str[i]))
+		{
+			ft_strdel(&str);
 			return (0);
+		}
 	}
 	ants = ft_atoi(str);
 	ft_strdel(&str);
-	if (!(str = ft_fillgraph(graph, fd)))
+	if (ft_fillgraph(graph, fd, &str))
 		return (0);
 	if (!ft_linkgraph(graph, fd, &str))
 		return (0);

@@ -17,27 +17,23 @@ int		main(int ac, char **av)
 	int			fd;
 	int			ants;
 	t_graph		*graph;
-	t_vertex	*tmp;
-	t_vertex	*link;
 
 	fd = open(av[1], O_RDONLY);
+	system("leaks lem-in | grep -c Leak");
 	graph = ft_newgraph();
+	system("leaks lem-in | grep -c Leak");
 	ants = ft_readfile(graph, fd);
 	ft_dprintf(1, "ants = %d\n", ants);
 	if (ants == 0)
 		return (1);
-	tmp = graph->head;
-	while (tmp)
-	{
-		ft_dprintf(1, "name = %s; x = %d; y = %d\n", tmp->name, tmp->x, tmp->y);
-		while (tmp->link)
-		{
-			link = (t_vertex *)(tmp->link->content);
-			ft_dprintf(1, "[%s|%s]->", tmp->name, link->name);
-			tmp->link = tmp->link->next;
-		}
-		ft_dprintf(1, "\n");
-		tmp = tmp->next;
-	}
+	system("leaks lem-in | grep -c Leak");
+	ft_graphshow(1, graph);
+	ft_printf("\n");
+	system("leaks lem-in | grep -c Leak");
+	ft_bfs(graph);
+	ft_printf("\n");
+	system("leaks lem-in | grep -c Leak");
+	ft_graphshow(1, graph);
+	system("leaks lem-in | grep -c Leak");
 	return (0);
 }
