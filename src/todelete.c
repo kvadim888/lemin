@@ -36,8 +36,7 @@ int			ft_graphshow(int out, t_graph *graph)
 			dprintf(out, "%sstart->%s", RED, NORM);
 		if (graph->end == tmp)
 			dprintf(out, "%send->%s", RED, NORM);
-		dprintf(out, "%s(%d)%s[\'%s\'; %d; %d]\n", CYAN, tmp->status, NORM,
-													tmp->name, tmp->x, tmp->y);
+		dprintf(out, "%s(%d)%s[%s]%s:", CYAN,  tmp->status, BLUE, tmp->name, NORM);
 		list = tmp->link;
 		while (list)
 		{
@@ -48,5 +47,18 @@ int			ft_graphshow(int out, t_graph *graph)
 		dprintf(out, "[null]\n");
 		tmp = tmp->next;
 	}
+	return (1);
+}
+
+int			ft_queueshow(t_list *queue)
+{
+	if (!queue)
+		return (0);
+	while (queue)
+	{
+		ft_printf("[%s]->", ((t_vertex *)queue->content)->name);
+		queue = queue->next;
+	}
+	ft_printf("[null]\n");
 	return (1);
 }

@@ -12,46 +12,42 @@
 
 #include "lemin.h"
 
-int			ft_validvertex(char *str, char **name, int *x, int *y)
+int			ft_addvertex(t_graph *graph, t_vertex *vertex, int label)
 {
-	int		i;
+	t_vertex	*tmp;
 
-	if (str[0] == 'L')
-		return (0);
-	i = -1;
-	while ((str[++i] != '\0') && (str[i] != ' ') && (str[i] != '-'))
-		i++;
-	if ((str[i] == '\0') || (str[i] == '-'))
-		return (0);
-	*name = ft_strsub(str, 0, (size_t)i);
-	str += (i + 1);
-	i = (str[0] == '-') ? 1 : 0;
-	while (ft_isdigit(str[i]))
-		i++;
-	if (str[0] != ' ')
-		return (0);
-	*x = ft_atoi(str);
-	str += (i + 1);
-	i = (str[0] == '-') ? 1 : 0;
-	while (ft_isdigit(str[i]))
-		i++;
-	if (str[i] != '\0')
-		return (0);
-	*y = ft_atoi(str);
+	if (!graph->head)
+		graph->head = vertex;
+	else
+	{
+		tmp = graph->head;
+		while (tmp)
+		{
+			if (ft_strequ(vertex->name, tmp->name)
+				|| ((tmp->x == vertex->x) && (tmp->y == vertex->y)))
+				return (0);
+			if (tmp->next == NULL)
+			{
+				tmp->next = vertex;
+				break ;
+			}
+			tmp = tmp->next;
+		}
+	}
+	if (label == 1)
+		graph->start = vertex;
+	if (label == 2)
+		graph->end = vertex;
 	return (1);
 }
 
-int			ft_comment(char *str, int *label)
+void		ft_delvertex(t_vertex **vertex)
 {
-	if (*str == '#')
+	if (*vertex)
 	{
-		if (ft_strequ(str, "##start"))
-			*label = 1;
-		if (ft_strequ(str, "##end"))
-			*label = 2;
-		return (1);
+		ft_strdel(&((*vertex)->name));
+		ft_memdel((void **)vertex);
 	}
-	return (0);
 }
 
 int 		ft_fillgraph(t_graph *graph, int fd, char **str)
@@ -62,23 +58,23 @@ int 		ft_fillgraph(t_graph *graph, int fd, char **str)
 	int 		x;
 	int 		y;
 
-	while (get_next_line(fd, str) > 0 && !(ft_strchr(*str, '-')))
+	while ((get_next_line(fd, str) > 0) && !(ft_islink(*str)))
 	{
-		if (ft_comment(*str, &label))
+		if (ft_iscomment(str, &label))
 			continue ;
-		tmp = NULL;
-		if (ft_validvertex(*str, &name, &x, &y))
-			tmp = ft_newvertex(name, x, y);
+		name = NULL;
+		tmp = (ft_validvertex(*str, &name, &x, &y))
+				? ft_newvertex(name, x, y) : NULL;
 		ft_strdel(&name);
-		if (!tmp)
-			return (0);
-		tmp->next = graph->head;
-		graph->head = tmp;
-		if (label == 2)
-			graph->start = graph->head;
-		if (label == 3)
-			graph->end = graph->head;
 		ft_strdel(str);
+		if (tmp == NULL)
+			return (0);
+		if (!ft_addvertex(graph, tmp, label))
+		{
+			ft_delvertex(&tmp);
+			return (0);
+		}
+		label = 0;
 	}
 	return (1);
 }
@@ -87,49 +83,49 @@ int 		ft_linkgraph(t_graph *graph, int fd, char **str)
 {
 	char	*name1;
 	char	*name2;
+	int		stat;
 
-	while (get_next_line(fd, str) > 0)
+	while (*str)
 	{
-		if (**str == '#')
+		if (**str != '#')
 		{
-			ft_strdel(str);
-			continue ;
+			if (!ft_islink(*str))
+			{
+				return (0);
+			}
+			name1 = ft_strsub(*str, 0, ft_strchr(*str, '-') - *str);
+			name2 = ft_strchr(*str, '-') + 1;
+			stat = ft_linkvertex(name1, name2, graph->head);
+			ft_strdel(&name1);
+			if (stat == 0)
+				return (0);
 		}
-		name1 = ft_strsub(*str, 0, ft_strchr(*str, '-') - *str);
-		name2 = ft_strchr(*str, '-') + 1;
-		ft_linkvertex(name1, name2, graph->head);
 		ft_strdel(str);
-		ft_strdel(&name1);
+		if (get_next_line(fd, str) < 1)
+			return (1);
 	}
-	ft_strdel(str);
-	return (1);
+	return (0);
 }
 
 int			ft_readfile(t_graph *graph, int fd)
 {
-	char	*str;
 	int		i;
+	int		stat;
+	char	*str;
 	int		ants;
 
-	if (get_next_line(fd, &str) < 1)
-	{
-		ft_strdel(&str);
+	if (get_next_line(fd, &str) < 0)
 		return (0);
-	}
-	i = -1;
-	while (str[++i] != '\0')
-	{
-		if (!ft_isdigit(str[i]))
-		{
-			ft_strdel(&str);
-			return (0);
-		}
-	}
-	ants = ft_atoi(str);
+	i = 0;
+	while (ft_isdigit(str[i]))
+		i++;
+	ants = (str[i] == '\0') ? ft_atoi(str) : 0;
 	ft_strdel(&str);
+	if (ants <= 0)
+		return (0);
+	stat = 0;
 	if (ft_fillgraph(graph, fd, &str))
-		return (0);
-	if (!ft_linkgraph(graph, fd, &str))
-		return (0);
-	return (ants);
+		stat = ft_linkgraph(graph, fd, &str);
+	ft_strdel(&str);
+	return ((stat) ? ants : 0);
 }

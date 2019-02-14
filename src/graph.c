@@ -36,7 +36,7 @@ t_vertex	*ft_newvertex(char *name, int x, int y)
 	return (vertex);
 }
 
-void		ft_linkvertex(char *name1, char *name2, t_vertex *head)
+int			ft_linkvertex(char *name1, char *name2, t_vertex *head)
 {
 	t_vertex	*tmp1;
 	t_vertex	*tmp2;
@@ -48,9 +48,10 @@ void		ft_linkvertex(char *name1, char *name2, t_vertex *head)
 	while (tmp2 && !(ft_strequ(tmp2->name, name2)))
 		tmp2 = tmp2->next;
 	if (!tmp1 || !tmp2)
-		return ;
-	if (ft_newlink(tmp1, tmp2))
-		ft_newlink(tmp2, tmp1);
+		return (0);
+	if (ft_newlink(tmp1, tmp2) && ft_newlink(tmp2, tmp1))
+		return (1);
+	return (0);
 }
 
 int			ft_newlink(t_vertex *v1, t_vertex *v2)

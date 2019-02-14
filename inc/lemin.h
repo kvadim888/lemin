@@ -26,7 +26,7 @@ typedef struct			s_vertex
 }						t_vertex;
 
 t_vertex				*ft_newvertex(char *name, int x, int y);
-void					ft_linkvertex(char *name1, char *name2, t_vertex *head);
+int						ft_linkvertex(char *name1, char *name2, t_vertex *head);
 int						ft_newlink(t_vertex *v1, t_vertex *v2);
 
 typedef	struct			s_graph
@@ -41,14 +41,23 @@ int						ft_fillgraph(t_graph *graph, int fd, char **str);
 int						ft_linkgraph(t_graph *graph, int fd, char **str);
 int						ft_readfile(t_graph *graph, int fd);
 
-t_list					*ft_lstdup(t_list *lst);
-t_list					*ft_enqueue(t_list *queue, t_list *link);
-void					ft_bfs(t_graph *graph);
+t_list					*ft_lstdup(t_list *lst, int level);
+t_list					*ft_enqueue(t_list *queue, t_list *link, int level);
+t_list					*ft_bfs(t_graph *graph);
+t_list					*ft_addpath(t_list *path, t_vertex *vertex);
+t_list					*ft_reduce(t_list *path);
 
+int						ft_iscomment(char **str, int *label);
+int						ft_islink(char *str);
+int						ft_validvertex(char *str, char **name, int *x, int *y);
+//int						ft_validlink(char *str, t_graph *graph,
+//												char **name1, char **name2);
 /*
  *  TO DELETE -- additional functions for convenience
  */
 
-int			ft_graphshow(int out, t_graph *graph);
+int						ft_graphshow(int out, t_graph *graph);
+int						ft_queueshow(t_list *queue);
+t_list					*ft_pathsplit(t_list *path);
 
 #endif
