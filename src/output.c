@@ -12,16 +12,72 @@
 
 #include "lemin.h"
 
-//int		ft_solution(int ants, t_list *sol)
-//{
-//	t_list	*p;
-//	int		i;
-//
-//	p = sol;
-//	i = 1;
-//	while (p && i <= ants)
-//	{
-//		ft_printf("L%d-%d", i++, ((t_vertex *)p->content)->name);
-//		p = p->next;
-//	}
-//}
+static t_list	*ft_makeants(int amount)
+{
+	t_list	*ants;
+
+	ants = ft_lstnew(NULL, 0);
+	ants->content_size = (size_t)amount;
+	while (--amount > 0)
+	{
+		ft_lstadd(&ants, ft_lstnew(NULL, (size_t)amount));
+		ants->content_size = (size_t)amount;
+	}
+	return (ants);
+}
+
+static t_list	*ft_delants(t_list *ants)
+{
+	while (ants && (ants->content == NULL))
+		ants = ft_dequeue(ants);
+	return (ants);
+}
+
+static void		ft_printstep(t_list *ants)
+{
+	int		flag;
+	t_list	*curr;
+
+	curr = ants;
+	flag = 0;
+	while (curr && curr->content)
+	{
+		if (flag)
+			ft_printf(" L%d-%s", curr->content_size,
+					  ((t_vertex *)curr->content)->name);
+		else
+			ft_printf("L%d-%s", curr->content_size,
+					  ((t_vertex *)curr->content)->name);
+		flag = 1;
+		curr = curr->next;
+	}
+	ft_printf("\n");
+}
+
+void			ft_moveants(t_graph *graph, int amount)
+{
+	t_list		*ants;
+	t_list		*link;
+	t_list		*curr_ant;
+
+	ants = ft_makeants(amount);
+	while (ants)
+	{
+		link = graph->start->link;
+		curr_ant = ants;
+		while (curr_ant && curr_ant->content)
+		{
+			curr_ant->content = (((t_vertex *)curr_ant->content)->link)
+					? ((t_vertex *)curr_ant->content)->link->content : NULL;
+			curr_ant = curr_ant->next;
+		}
+		while (link && curr_ant)
+		{
+			curr_ant->content = link->content;
+			curr_ant = curr_ant->next;
+			link = link->next;
+		}
+		ants = ft_delants(ants);
+		ft_printstep(ants);
+	}
+}

@@ -61,29 +61,3 @@ int			ft_validvertex(char *str, char **name, int *x, int *y)
 	*y = ft_atoi(str);
 	return (1);
 }
-
-//int			ft_validlink(char *str, t_graph *graph, char **name1, char **name2)
-//{
-//	int			i;
-//	t_vertex	*tmp;
-//
-//	i = 0;
-//	while ((str[i] != '\0') && (str[i] != '-'))
-//		i++;
-//	if (str[i] == '\0')
-//		return (0);
-//	*name1 = ft_strsub(str, 0, (size_t)i);
-//	str += (i + 1);
-//	*name2 = ft_strdup(str);
-//	tmp = graph->head;
-//	while (tmp && !ft_strcmp(tmp->name, *name1))
-//		tmp = tmp->next;
-//	if (tmp == NULL)
-//		return (0);
-//	tmp = graph->head;
-//	while (tmp && !ft_strcmp(tmp->name, *name2))
-//		tmp = tmp->next;
-//	if (tmp == NULL)
-//		return (0);
-//	return (1);
-//}

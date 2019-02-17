@@ -43,15 +43,20 @@ int						ft_readfile(t_graph *graph, int fd);
 
 t_list					*ft_lstdup(t_list *lst, int level);
 t_list					*ft_enqueue(t_list *queue, t_list *link, int level);
+t_list					*ft_dequeue(t_list *queue);
+t_list					*ft_nodedup(t_list *node);
 t_list					*ft_bfs(t_graph *graph);
 t_list					*ft_addpath(t_list *path, t_vertex *vertex);
-t_list					*ft_reduce(t_list *path);
+void					ft_linkreduce(t_graph *graph);
 
 int						ft_iscomment(char **str, int *label);
 int						ft_islink(char *str);
 int						ft_validvertex(char *str, char **name, int *x, int *y);
 //int						ft_validlink(char *str, t_graph *graph,
 //												char **name1, char **name2);
+
+void					ft_moveants(t_graph *graph, int amount);
+
 /*
  *  TO DELETE -- additional functions for convenience
  */
@@ -59,5 +64,7 @@ int						ft_validvertex(char *str, char **name, int *x, int *y);
 int						ft_graphshow(int out, t_graph *graph);
 int						ft_queueshow(t_list *queue);
 t_list					*ft_pathsplit(t_list *path);
+int						ft_antshow(t_list *ants);
+
 
 #endif

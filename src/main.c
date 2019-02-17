@@ -17,8 +17,6 @@ int		main(int ac, char **av)
 	int			fd;
 	int			ants;
 	t_list		*path;
-	t_list		*list;
-	t_list		*lst;
 	t_graph		*graph;
 
 	fd = open(av[1], O_RDONLY);
@@ -31,15 +29,12 @@ int		main(int ac, char **av)
 		return (1);
 	}
 	ft_graphshow(1, graph);
-	ft_printf("\n\n\n");
 	path = ft_bfs(graph);
+	ft_queueshow(path);
 	ft_graphshow(1, graph);
-	list = ft_pathsplit(path);
-	lst = list;
-	while (lst)
-	{
-		ft_queueshow(lst->content);
-		lst = lst->next;
-	}
+	ft_linkreduce(graph);
+	printf("\n");
+	ft_graphshow(1, graph);
+	ft_moveants(graph, ants);
 	return (0);
 }
