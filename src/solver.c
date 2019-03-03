@@ -12,46 +12,45 @@
 
 #include "lemin.h"
 
-t_list		*ft_enqueue(t_list *queue, t_list *link, int level)
+t_list			*ft_reducepath(t_graph *graph, t_list *path)
 {
-	t_list	*q;
+	t_list	*tmp;
 
-	q = queue;
-	if (q)
-	{
-		while (q->next)
-			q = q->next;
-		q->next = ft_lstdup(link, level);
-	}
-	else
-		queue = ft_lstdup(link, level);
-	return (queue);
-}
-
-t_list		*ft_dequeue(t_list *queue)
-{
-	t_list	*q;
-
-	if (!queue)
+	tmp = path;
+	if (!path)
 		return (NULL);
-	q = queue->next;
-	ft_memdel((void **)&queue);
-	return (q);
+	while ()
+	{
+
+	}
+	return (path);
 }
 
-t_list		*ft_addpath(t_list *path, t_vertex *vertex)
+void			ft_addflow(t_list *path)
 {
-	t_list	*node;
+	t_list	*tmp;
 
-	if (!vertex)
-		return (path);
-	node = ft_memalloc(sizeof(t_list));
-	if (!node)
-		return (path);
-	node->content = vertex;
-	node->next = path;
-	path = node;
-	return (path);
+	tmp = path;
+	while (path)
+	{
+		path->content_size += 1;
+
+	}
+}
+
+int				ft_edkarp(t_graph *graph)
+{
+	int		amount;
+	t_list	*path;
+
+	amount = 0;
+	while ((path = ft_reducepath(graph, ft_bfs(graph))) != NULL)
+	{
+		ft_addflow(path);
+		while (path)
+			path = ft_dequeue(path);
+	}
+	return (amount);
 }
 
 t_list		*ft_cutlink(t_list *prev, t_list *link, t_vertex *vertex)
@@ -65,57 +64,64 @@ t_list		*ft_cutlink(t_list *prev, t_list *link, t_vertex *vertex)
 	return (link);
 }
 
-void		ft_linkreduce(t_graph *graph)
+void			ft_delpair(t_vertex *vertex, t_list **link)
 {
-	t_list		*link;
+	t_vertex	*pair;
+	t_list		*tmp;
 	t_list		*prev;
-	t_vertex	*tmp;
 
-	tmp = graph->head;
-	while (tmp)
+	if (!(link && *link))
+		return ;
+	pair = (*link)->content;
+	tmp = pair->link;
+	prev = NULL;
+	while (tmp && tmp->content != vertex)
 	{
-		prev = NULL;
-		link = tmp->link;
-		while (link)
-		{
-			if ((((t_vertex*)link->content)->status < tmp->status)
-				&& (link->content != graph->end))
-			{
-				link = ft_cutlink(prev, link, tmp);
-				continue ;
-			}
-			prev = link;
-			link = link->next;
-		}
+		prev = tmp;
 		tmp = tmp->next;
 	}
+	ft_cutlink(prev, tmp, pair);
+	ft_memdel((void **)link);
 }
 
-t_list		*ft_bfs(t_graph *graph)
+t_vertex		*ft_cutvertex(t_vertex *vertex, t_vertex *prev)
 {
-	t_list		*queue;
-	t_list		*path;
 	t_vertex	*tmp;
-	int			level;
+	t_list		*link;
 
-	if (!graph)
+	if (!vertex)
 		return (NULL);
-	level = 1;
-	graph->start->status = level;
-	queue = ft_enqueue(NULL, graph->start->link, level + 1);
-	path = ft_addpath(NULL, graph->start);
-	while (queue)
+	tmp = vertex;
+	vertex = vertex->next;
+	if (prev)
+		prev->next = vertex->next;
+	while (tmp->link)
 	{
-		tmp = (t_vertex *)queue->content;
-		if (tmp->status == 0)
-		{
-			tmp->status = (int)queue->content_size;
-			level = tmp->status;
-			path = ft_addpath(path, (t_vertex *)queue->content);
-			queue = ft_enqueue(queue, tmp->link, tmp->status + 1);
-		}
-		queue = ft_dequeue(queue);
+		link = tmp->link;
+		tmp->link = tmp->link->next;
+		ft_delpair(vertex, &link);
 	}
-	graph->end->status = level + 1;
-	return (path);
+	ft_memdel((void **)&(tmp->link));
+	ft_strdel(&(tmp->name));
+	ft_memdel((void **)&tmp);
+	return (vertex);
+}
+
+void		ft_graphreduce(t_graph *graph)
+{
+	t_vertex *vertex;
+	t_vertex *prev;
+
+	vertex = graph->head;
+	prev = NULL;
+	while (vertex)
+	{
+		if (vertex->status == 0)
+			vertex = ft_cutvertex(vertex, prev);
+		else
+		{
+			prev = vertex;
+			vertex = vertex->next;
+		}
+	}
 }

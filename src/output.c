@@ -17,11 +17,11 @@ static t_list	*ft_makeants(int amount)
 	t_list	*ants;
 
 	ants = ft_lstnew(NULL, 0);
-	ants->content_size = (size_t)amount;
+	ants->content_size = amount;
 	while (--amount > 0)
 	{
-		ft_lstadd(&ants, ft_lstnew(NULL, (size_t)amount));
-		ants->content_size = (size_t)amount;
+		ft_lstadd(&ants, ft_lstnew(NULL, amount));
+		ants->content_size = amount;
 	}
 	return (ants);
 }

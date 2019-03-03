@@ -120,7 +120,7 @@ t_list		*ft_lstdup(t_list *lst, int level)
 	while (lst)
 	{
 		n->next = ft_memalloc(sizeof(t_list));
-		n->next->content_size = (size_t)level;
+		n->next->content_size = level;
 		n->next->content = lst->content;
 		n = n->next;
 		n->next = NULL;

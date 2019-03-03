@@ -56,28 +56,28 @@ int			ft_linkvertex(char *name1, char *name2, t_vertex *head)
 
 int			ft_newlink(t_vertex *v1, t_vertex *v2)
 {
-	t_list	*link;
+	t_link	*link;
 
 	if (!v1 || !v2)
 		return (0);
 	if (!(v1->link))
 	{
-		if (!(v1->link = ft_memalloc(sizeof(t_list))))
+		if (!(v1->link = ft_memalloc(sizeof(t_link))))
 			return (0);
-		v1->link->content = v2;
-		v1->link->content_size = 0;
+		v1->link->vertex = v2;
+		v1->link->flow = 0;
 		v1->link->next = NULL;
 		return (1);
 	}
 	link = v1->link;
-	while (link->next && link->content != v2)
+	while (link->next && link->vertex != v2)
 		link = link->next;
 	if (link->next)
 		return (0);
-	if (!(link->next = ft_memalloc(sizeof(t_list))))
+	if (!(link->next = ft_memalloc(sizeof(t_link))))
 		return (0);
-	link->next->content = v2;
-	link->next->content_size = 0;
+	link->next->vertex = v2;
+	link->next->flow = 0;
 	link->next->next = NULL;
 	return (1);
 }
