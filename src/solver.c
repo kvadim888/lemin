@@ -12,36 +12,49 @@
 
 #include "lemin.h"
 
-t_list			*ft_reducepath(t_graph *graph, t_list *path)
+t_list		*ft_reducepath(t_graph *graph, t_list *path)
 {
 	t_list	*tmp;
 
 	tmp = path;
 	if (!path)
 		return (NULL);
-	while ()
+	while (0)
 	{
 
 	}
 	return (path);
 }
 
-void			ft_addflow(t_list *path)
+void		ft_addflow(t_list *path)
 {
-	t_list	*tmp;
+	t_list		*tmp;
+	t_vertex	*curr;
+	t_vertex	*next;
+	t_list		*curr_link;
+	t_list		*next_link;
 
 	tmp = path;
-	while (path)
+	while (tmp)
 	{
-		path->content_size += 1;
-
+		curr = (t_vertex *)tmp->content;
+		next = (t_vertex *)tmp->next->content;
+		curr_link = curr->link->content;
+		next_link = next->link->content;
+		while (curr_link->content != next)
+			curr_link = curr_link->next;
+		while (next_link->content != curr)
+			next_link = next_link->next;
+		next_link->content_size -= 1;
+		tmp = tmp->next;
 	}
 }
 
-int				ft_edkarp(t_graph *graph)
+int			ft_edkarp(t_graph *graph)
 {
 	int		amount;
 	t_list	*path;
+	t_vertex	*vertex;
 
 	amount = 0;
 	while ((path = ft_reducepath(graph, ft_bfs(graph))) != NULL)
@@ -49,6 +62,12 @@ int				ft_edkarp(t_graph *graph)
 		ft_addflow(path);
 		while (path)
 			path = ft_dequeue(path);
+		vertex = graph->head;
+		while (vertex)
+		{
+			vertex->status = 0;
+			vertex = vertex->next;
+		}
 	}
 	return (amount);
 }
@@ -64,7 +83,7 @@ t_list		*ft_cutlink(t_list *prev, t_list *link, t_vertex *vertex)
 	return (link);
 }
 
-void			ft_delpair(t_vertex *vertex, t_list **link)
+void		ft_delpair(t_vertex *vertex, t_list **link)
 {
 	t_vertex	*pair;
 	t_list		*tmp;
@@ -84,7 +103,7 @@ void			ft_delpair(t_vertex *vertex, t_list **link)
 	ft_memdel((void **)link);
 }
 
-t_vertex		*ft_cutvertex(t_vertex *vertex, t_vertex *prev)
+t_vertex	*ft_cutvertex(t_vertex *vertex, t_vertex *prev)
 {
 	t_vertex	*tmp;
 	t_list		*link;

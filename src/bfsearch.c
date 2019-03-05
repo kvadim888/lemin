@@ -12,6 +12,32 @@
 
 #include "lemin.h"
 
+t_list				*ft_lstdup(t_list *lst, int level)
+{
+	t_list	*new;
+	t_list	*n;
+
+	if (!lst)
+		return (NULL);
+	new = ft_memalloc(sizeof(t_list));
+	new->content_size = (size_t)level;
+	new->content = lst->content;
+	n = new;
+	lst = lst->next;
+	while (lst)
+	{
+		if (lst->content_size == 1)
+			continue ;
+		n->next = ft_memalloc(sizeof(t_list));
+		n->next->content_size = level;
+		n->next->content = lst->content;
+		n = n->next;
+		n->next = NULL;
+		lst = lst->next;
+	}
+	return (new);
+}
+
 t_list				*ft_enqueue(t_list *queue, t_list *link, int level)
 {
 	t_list	*q;
@@ -54,43 +80,29 @@ static t_list		*ft_addpath(t_list *path, t_vertex *vertex)
 	return (path);
 }
 
-static t_vertex		*ft_vertex(t_list *link)
-{
-	t_vertex	*vertex;
-
-	if (link->content_size < 1)
-	{
-		vertex = (t_vertex *)link->content;
-		if (vertex->status != 0)
-			return (vertex);
-	}
-	return (NULL);
-}
-
 t_list				*ft_bfs(t_graph *graph)
 {
 	t_list		*queue;
 	t_list		*path;
 	t_vertex	*tmp;
-	int			level;
 
 	if (!graph)
 		return (NULL);
-	level = 1;
-	graph->start->status = level;
-	queue = ft_enqueue(NULL, graph->start->link, level + 1);
+	graph->start->status = 1;
+	queue = ft_enqueue(NULL, graph->start->link, graph->start->status + 1);
 	path = ft_addpath(NULL, graph->start);
 	while (queue)
 	{
-		if ((tmp = ft_vertex(queue)) != NULL)
+		tmp = queue->content;
+		if (tmp->status == 0)
 		{
 			tmp->status = (int)queue->content_size;
-			level = tmp->status;
 			path = ft_addpath(path, (t_vertex *)queue->content);
 			queue = ft_enqueue(queue, tmp->link, tmp->status + 1);
 		}
 		queue = ft_dequeue(queue);
+		ft_queueshow(path);
+		ft_printf("\n");
 	}
-	graph->end->status = level + 1;
 	return (path);
 }

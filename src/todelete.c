@@ -105,29 +105,6 @@ t_list		*ft_nodedup(t_list *node)
 	return (new);
 }
 
-t_list		*ft_lstdup(t_list *lst, int level)
-{
-	t_list	*new;
-	t_list	*n;
-
-	if (!lst)
-		return (NULL);
-	new = ft_memalloc(sizeof(t_list));
-	new->content_size = (size_t)level;
-	new->content = lst->content;
-	n = new;
-	lst = lst->next;
-	while (lst)
-	{
-		n->next = ft_memalloc(sizeof(t_list));
-		n->next->content_size = level;
-		n->next->content = lst->content;
-		n = n->next;
-		n->next = NULL;
-		lst = lst->next;
-	}
-	return (new);
-}
 
 t_list		*ft_lstinsert(t_list *list, t_list *new)
 {

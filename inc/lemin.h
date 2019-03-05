@@ -46,7 +46,6 @@ t_list					*ft_enqueue(t_list *queue, t_list *link, int level);
 t_list					*ft_dequeue(t_list *queue);
 t_list					*ft_nodedup(t_list *node);
 t_list					*ft_bfs(t_graph *graph);
-void					ft_linkreduce(t_graph *graph);
 void					ft_graphreduce(t_graph *graph);
 
 int						ft_iscomment(char **str, int *label);

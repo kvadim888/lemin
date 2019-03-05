@@ -16,7 +16,7 @@ int		main(int ac, char **av)
 {
 	int			fd;
 	int			ants;
-	t_link		*path;
+	t_list		*path;
 	t_graph		*graph;
 
 	fd = open(av[1], O_RDONLY);
@@ -30,12 +30,6 @@ int		main(int ac, char **av)
 	}
 	ft_graphshow(1, graph);
 	path = ft_bfs(graph);
-	ft_graphreduce(graph);
 	ft_queueshow(path);
-	ft_graphshow(1, graph);
-	ft_linkreduce(graph);
-	printf("\n");
-	ft_graphshow(1, graph);
-	ft_moveants(graph, ants);
 	return (0);
 }
