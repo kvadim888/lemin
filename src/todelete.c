@@ -41,7 +41,7 @@ int			ft_graphshow(int out, t_graph *graph)
 		while (list)
 		{
 			link = (t_vertex *)(list->content);
-			ft_dprintf(out, "[%s|%s]->", tmp->name, link->name);
+			ft_dprintf(out, "[%d|'%s']->", list->content_size, link->name);
 			list = list->next;
 		}
 		dprintf(out, "[null]\n");
@@ -121,45 +121,3 @@ t_list		*ft_lstinsert(t_list *list, t_list *new)
 	new->next = tmp;
 	return (new);
 }
-
-t_list	*ft_pathsplit(t_list *path)
-{
-	t_list	*list;
-	t_list	*link;
-	t_list	*lst;
-	t_list	*tmp;
-
-	list = ft_memalloc(sizeof(t_list));			//list of paths
-	list->content = ft_nodedup(path);			//copy end vertex to path
-	path = ft_dequeue(path);
-	lst = list;
-	tmp = lst->content;
-	while (path)
-	{
-		printf("path{%s}\n", ((t_vertex *)path->content)->name);
-		ft_printf("vertex{%s} ", ((t_vertex *)tmp->content)->name);
-		link = ((t_vertex *)tmp->content)->link;
-		ft_queueshow(link);
-		if (ft_islinked(link, (t_vertex *)path->content))
-		{
-			printf("{%s} linked with {%s}\n", ((t_vertex *)path->content)->name,
-				   ((t_vertex *)tmp->content)->name);
-			if (lst->content != tmp)
-			{
-				lst = ft_lstinsert(lst, ft_lstnew(NULL, 0));
-				lst->content = ft_lstdup(tmp, 0);
-				tmp = lst->content;
-			}
-			lst->content = ft_nodedup(path);	//copy end vertex to path
-			((t_list *)lst->content)->next = tmp;
-			path = ft_dequeue(path);
-		}
-		else
-		{
-			lst = (lst->next) ? lst->next : list;
-			tmp = lst->content;
-		}
-	}
-	return (list);
-}
-

@@ -23,7 +23,14 @@ typedef struct			s_vertex
 	int					y;
 	t_list				*link;
 	struct s_vertex		*next;
+	struct s_vertex		*root;
 }						t_vertex;
+
+typedef struct			s_path
+{
+	struct s_vertex		*root;
+	struct s_vertex		*curr;
+}						t_path;
 
 t_vertex				*ft_newvertex(char *name, int x, int y);
 int						ft_linkvertex(char *name1, char *name2, t_vertex *head);
@@ -41,12 +48,16 @@ int						ft_fillgraph(t_graph *graph, int fd, char **str);
 int						ft_linkgraph(t_graph *graph, int fd, char **str);
 int						ft_readfile(t_graph *graph, int fd);
 
-t_list					*ft_lstdup(t_list *lst, int level);
-t_list					*ft_enqueue(t_list *queue, t_list *link, int level);
+t_list					*ft_linkdup(t_list *lst, t_vertex *vertex, int level);
+t_list					*ft_enqueue(t_list *queue, t_vertex *vertex);
 t_list					*ft_dequeue(t_list *queue);
 t_list					*ft_nodedup(t_list *node);
 t_list					*ft_bfs(t_graph *graph);
-void					ft_graphreduce(t_graph *graph);
+int						ft_edkarp(t_graph *graph);
+t_list					*ft_shortestpath(t_graph *graph);
+void					ft_addflow(t_list *path, int flow);
+
+t_list					*ft_trace(t_vertex *vertex, t_list *prev, t_list **trace);
 
 int						ft_iscomment(char **str, int *label);
 int						ft_islink(char *str);

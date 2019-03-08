@@ -30,6 +30,9 @@ int		main(int ac, char **av)
 	}
 	ft_graphshow(1, graph);
 	path = ft_bfs(graph);
+	ft_edkarp(graph);
+	ft_addflow(path, 1);
+	ft_graphshow(1, graph);
 	ft_queueshow(path);
 	return (0);
 }

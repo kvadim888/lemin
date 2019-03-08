@@ -33,6 +33,7 @@ t_vertex	*ft_newvertex(char *name, int x, int y)
 	vertex->y = y;
 	vertex->status = 0;
 	vertex->next = NULL;
+	vertex->root = NULL;
 	return (vertex);
 }
 
