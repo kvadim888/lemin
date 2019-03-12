@@ -82,3 +82,18 @@ int			ft_newlink(t_vertex *v1, t_vertex *v2)
 	link->next->next = NULL;
 	return (1);
 }
+
+void	ft_resetgraph(t_graph *graph)
+{
+    t_vertex *vertex;
+
+    if (!graph)
+        return ;
+    vertex = graph->head;
+    while (vertex)
+    {
+        vertex->status = 0;
+        vertex->root = NULL;
+        vertex = vertex->next;
+    }
+}

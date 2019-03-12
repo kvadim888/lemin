@@ -44,17 +44,17 @@ typedef	struct			s_graph
 }						t_graph;
 
 t_graph					*ft_newgraph(void);
+void					ft_resetgraph(t_graph *graph);
 int						ft_fillgraph(t_graph *graph, int fd, char **str);
 int						ft_linkgraph(t_graph *graph, int fd, char **str);
 int						ft_readfile(t_graph *graph, int fd);
 
-t_list					*ft_linkdup(t_list *lst, t_vertex *vertex, int level);
+t_list					*ft_linkdup(t_vertex *vertex, int level);
 t_list					*ft_enqueue(t_list *queue, t_vertex *vertex);
 t_list					*ft_dequeue(t_list *queue);
 t_list					*ft_nodedup(t_list *node);
 t_list					*ft_bfs(t_graph *graph);
 int						ft_edkarp(t_graph *graph);
-t_list					*ft_shortestpath(t_graph *graph);
 void					ft_addflow(t_list *path, int flow);
 
 t_list					*ft_trace(t_vertex *vertex, t_list *prev, t_list **trace);
@@ -64,6 +64,8 @@ int						ft_islink(char *str);
 int						ft_validvertex(char *str, char **name, int *x, int *y);
 //int					ft_validlink(char *str, t_graph *graph,
 //												char **name1, char **name2);
+
+void				ft_delpath(t_list *path);
 
 void					ft_moveants(t_graph *graph, int amount);
 

@@ -12,22 +12,26 @@
 
 #include "lemin.h"
 
-t_list				*ft_linkdup(t_list *lst, t_vertex *vertex, int level)
+// TODO universal condition for link adding
+
+t_list				*ft_linkdup(t_vertex *vertex, int level)
 {
+	t_path	path;
+	t_list	*lst;
 	t_list	*new;
 	t_list	*tmp;
 
 	tmp = NULL;
 	new = NULL;
+	path.root = vertex;
+	lst = vertex->link;
 	while (lst)
 	{
 		if (lst->content_size < 1)
 		{
-			new = ft_memalloc(sizeof(t_list));
+			path.curr = lst->content;
+			new = ft_lstnew(&path, sizeof(t_path));
 			new->content_size = level;
-			new->content = ft_memalloc(sizeof(t_path));
-			((t_path *)new->content)->curr = lst->content;
-			((t_path *)new->content)->root = vertex;
 			new->next = tmp;
 			tmp = new;
 		}
@@ -38,17 +42,17 @@ t_list				*ft_linkdup(t_list *lst, t_vertex *vertex, int level)
 
 t_list				*ft_enqueue(t_list *queue, t_vertex *vertex)
 {
-	t_list	*q;
+	t_list	*tmp;
 
-	q = queue;
-	if (q)
-	{
-		while (q->next)
-			q = q->next;
-		q->next = ft_linkdup(vertex->link, vertex, vertex->status + 1);
-	}
+	if (queue == NULL)
+		queue = ft_linkdup(vertex, vertex->status + 1);
 	else
-		queue = ft_linkdup(vertex->link, vertex, vertex->status + 1);
+	{
+		tmp = queue;
+		while (tmp->next)
+			tmp = tmp->next;
+		tmp->next = ft_linkdup(vertex, vertex->status + 1);
+	}
 	return (queue);
 }
 
@@ -64,34 +68,51 @@ t_list				*ft_dequeue(t_list *queue)
 	return (q);
 }
 
-static t_list		*ft_addpath(t_list *path, t_vertex *vertex)
+void				ft_delpath(t_list *path)
 {
-	t_list	*node;
+	t_list	*tmp;
 
-	if (!vertex)
-		return (path);
-	node = ft_memalloc(sizeof(t_list));
-	if (!node)
-		return (path);
-	node->content = vertex;
-	node->next = path;
-	path = node;
+	if (!path)
+		return ;
+	while (path)
+	{
+		tmp = path;
+		path = path->next;
+		ft_memdel((void **)&tmp);
+	}
+}
+
+static t_list		*ft_shortestpath(t_graph *graph)
+{
+	t_list		*path;
+	t_list		*node;
+	t_vertex	*vertex;
+
+	vertex = graph->end;
+	path = NULL;
+	while (vertex)
+	{
+		node = ft_memalloc(sizeof(t_list));
+		node->content = vertex;
+		node->next = path;
+		path = node;
+		if (vertex == graph->start)
+			break;
+		vertex = vertex->root;
+	}
 	return (path);
 }
 
 t_list				*ft_bfs(t_graph *graph)
 {
 	t_list		*queue;
-	t_list		*path;
 	t_path		*tmp;
-	t_vertex	*vertex;
 
 	if (!graph)
 		return (0);
-	queue = ft_enqueue(NULL, graph->start);
 	graph->start->root = NULL;
+	queue = ft_enqueue(NULL, graph->start);
 	tmp = queue->content;
-	path = NULL;
 	while (queue && tmp->curr != graph->end)
 	{
 		tmp = queue->content;
@@ -105,13 +126,5 @@ t_list				*ft_bfs(t_graph *graph)
 	}
 	while (queue)
 		queue = ft_dequeue(queue);
-	vertex = graph->end;
-	while (vertex)
-	{
-		path = ft_addpath(path, vertex);
-		if (vertex == graph->start)
-			break;
-		vertex = vertex->root;
-	}
-	return (path);
+	return (ft_shortestpath(graph));
 }

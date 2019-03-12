@@ -44,24 +44,14 @@ int			ft_edkarp(t_graph *graph)
 {
 	int			amount;
 	t_list		*path;
-	t_vertex	*vertex;
 
 	amount = 0;
 	while ((path = ft_bfs(graph)) != NULL)
 	{
 		amount++;
-		ft_queueshow(path);
 		ft_addflow(path, 1);
-		ft_graphshow(1, graph);
-		while (path)
-			path = ft_dequeue(path);
-		vertex = graph->head;
-		while (vertex)
-		{
-			vertex->status = 0;
-			vertex->root = NULL;
-			vertex = vertex->next;
-		}
+		ft_delpath(path);
+		ft_resetgraph(graph);
 	}
 	return (amount);
 }

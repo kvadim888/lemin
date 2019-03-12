@@ -25,7 +25,6 @@ int			ft_graphshow(int out, t_graph *graph)
 {
 	t_vertex	*tmp;
 	t_list		*list;
-	t_vertex	*link;
 
 	if (!graph)
 		return (0);
@@ -36,12 +35,14 @@ int			ft_graphshow(int out, t_graph *graph)
 			dprintf(out, "%sstart->%s", RED, NORM);
 		if (graph->end == tmp)
 			dprintf(out, "%send->%s", RED, NORM);
-		dprintf(out, "%s(%d)%s[%s]%s:", CYAN,  tmp->status, BLUE, tmp->name, NORM);
+		dprintf(out, "%s(%d)%s[%s]%s[%s]%s:",
+				CYAN, tmp->status,
+				BLUE, tmp->name,
+				GREEN, (tmp->root) ? tmp->root->name : NULL, NORM);
 		list = tmp->link;
 		while (list)
 		{
-			link = (t_vertex *)(list->content);
-			ft_dprintf(out, "[%d|'%s']->", list->content_size, link->name);
+			ft_dprintf(out, "[%d|'%s']->", list->content_size, ((t_vertex *)list->content)->name);
 			list = list->next;
 		}
 		dprintf(out, "[null]\n");

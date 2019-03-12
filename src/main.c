@@ -28,11 +28,40 @@ int		main(int ac, char **av)
 		ft_dprintf(2, "ERROR\n");
 		return (1);
 	}
+//	ft_graphshow(1, graph);
+//	path = ft_bfs(graph);
+//	ft_queueshow(path);
+//	ft_delpath(path);
+//	ft_resetgraph(graph);
+//	path = ft_bfs(graph);
+//	ft_queueshow(path);
+//	ft_delpath(path);
+//	ft_resetgraph(graph);
+//	while (path)
+//		path = ft_dequeue(path);
+//	path = ft_bfs(graph);
+//	ft_queueshow(path);
+//	while (path)
+//		path = ft_dequeue(path);
+//	path = ft_bfs(graph);
+//	ft_queueshow(path);
+//	while (path)
+//		path = ft_dequeue(path);
+//	path = ft_bfs(graph);
+//	ft_queueshow(path);
+//	while (path)
+//		path = ft_dequeue(path);
+//	ft_resetgraph(graph);
+//	path = ft_bfs(graph);
+//	ft_queueshow(path);
+//	while (path)
+//		path = ft_dequeue(path);
+//	ft_resetgraph(graph);
+//    ft_graphshow(1, graph);
 	ft_graphshow(1, graph);
-	path = ft_bfs(graph);
 	ft_edkarp(graph);
-	ft_addflow(path, 1);
 	ft_graphshow(1, graph);
-	ft_queueshow(path);
+//	ft_addflow(path, 1);
+//	ft_graphshow(1, graph);
 	return (0);
 }
