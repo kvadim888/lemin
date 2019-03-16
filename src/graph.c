@@ -12,88 +12,84 @@
 
 #include "lemin.h"
 
-t_graph		*ft_newgraph(void)
+t_list	*ft_newvertex(char *name, int x, int y)
 {
-	t_graph		*graph;
+	t_vertex	vertex;
 
-	if (!(graph = ft_memalloc(sizeof(t_graph))))
-		return (NULL);
-	graph->head = NULL;
-	return (graph);
+	vertex.name = ft_strdup(name);
+	vertex.x = x;
+	vertex.y = y;
+	vertex.status = 0;
+	vertex.root = NULL;
+	vertex.link = NULL;
+	return (ft_lstnew(&vertex, sizeof(t_vertex)));
 }
 
-t_vertex	*ft_newvertex(char *name, int x, int y)
+t_vertex	*ft_findvertex(t_graph *graph, char *name)
 {
+	t_list		*tmp;
 	t_vertex	*vertex;
 
-	if (!(vertex = ft_memalloc(sizeof(t_vertex))))
-		return (NULL);
-	vertex->name = ft_strdup(name);
-	vertex->x = x;
-	vertex->y = y;
-	vertex->status = 0;
-	vertex->next = NULL;
-	vertex->root = NULL;
-	return (vertex);
+	tmp = graph->head;
+	while (tmp)
+	{
+		vertex = tmp->content;
+		if (ft_strequ(vertex->name, name))
+			return (vertex);
+		tmp = tmp->next;
+	}
+	return (NULL);
 }
 
-int			ft_linkvertex(char *name1, char *name2, t_vertex *head)
+int			ft_linkvertex(t_graph *graph, char *name1, char *name2)
 {
-	t_vertex	*tmp1;
-	t_vertex	*tmp2;
+	t_vertex	*v1;
+	t_vertex	*v2;
 
-	tmp1 = head;
-	while (tmp1 && !(ft_strequ(tmp1->name, name1)))
-		tmp1 = tmp1->next;
-	tmp2 = head;
-	while (tmp2 && !(ft_strequ(tmp2->name, name2)))
-		tmp2 = tmp2->next;
-	if (!tmp1 || !tmp2)
-		return (0);
-	if (ft_newlink(tmp1, tmp2) && ft_newlink(tmp2, tmp1))
-		return (1);
-	return (0);
+	v1 = ft_findvertex(graph, name1);
+	v2 = ft_findvertex(graph, name2);
+	return (ft_newlink(v1, v2) && ft_newlink(v2, v1));
 }
 
 int			ft_newlink(t_vertex *v1, t_vertex *v2)
 {
-	t_list	*link;
+	t_route	route;
 
-	if (!v1 || !v2)
+	if (!(v1 && v2) || ft_lstfind(v1->link, v2, sizeof(v2)))
 		return (0);
-	if (!(v1->link))
-	{
-		if (!(v1->link = ft_memalloc(sizeof(t_list))))
-			return (0);
-		v1->link->content = v2;
-		v1->link->content_size = 0;
-		v1->link->next = NULL;
-		return (1);
-	}
-	link = v1->link;
-	while (link->next && link->content != v2)
-		link = link->next;
-	if (link->next)
-		return (0);
-	if (!(link->next = ft_memalloc(sizeof(t_list))))
-		return (0);
-	link->next->content = v2;
-	link->next->content_size = 0;
-	link->next->next = NULL;
+	route.vertex = v2;
+	route.flow = 0;
+	ft_lstadd(&(v1->link), ft_lstnew(&route, sizeof(route)));
 	return (1);
 }
 
-void	ft_resetgraph(t_graph *graph)
-{
-    t_vertex *vertex;
+//		ft_lstiter(graph->head, ft_bfsreset);
+//		ft_lstiter(graph->head, ft_edkarpreset);
 
-    if (!graph)
-        return ;
-    vertex = graph->head;
-    while (vertex)
-    {
-        vertex->status = 0;
-        vertex->root = NULL;
-        vertex = vertex->next;
-    }
+void		ft_bfsreset(t_list *vertex)
+{
+	if (vertex)
+	{
+		((t_vertex *)vertex->content)->status = 0;
+		((t_vertex *)vertex->content)->root = NULL;
+	}
+}
+
+void		ft_linkreset(t_list *link)
+{
+	if (link)
+	{
+		((t_route *)link->content)->vertex = 0;
+		((t_route *)link->content)->flow = 0;
+	}
+}
+
+void		ft_edkarpreset(t_list *vertex)
+{
+	if (vertex)
+	{
+		((t_vertex *)vertex->content)->status = 0;
+		((t_vertex *)vertex->content)->root = NULL;
+		ft_lstiter(((t_vertex *)vertex->content)->link, ft_linkreset);
+	}
 }

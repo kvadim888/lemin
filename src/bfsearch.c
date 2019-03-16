@@ -12,119 +12,77 @@
 
 #include "lemin.h"
 
-// TODO universal condition for link adding
-
-t_list				*ft_linkdup(t_vertex *vertex, int level)
+static t_list	*ft_linkdup(t_vertex *vertex)
 {
-	t_path	path;
 	t_list	*lst;
 	t_list	*new;
-	t_list	*tmp;
 
-	tmp = NULL;
 	new = NULL;
-	path.root = vertex;
 	lst = vertex->link;
 	while (lst)
 	{
-		if (lst->content_size < 1)
+		if (((t_route *)lst->content)->flow < 1)
 		{
-			path.curr = lst->content;
-			new = ft_lstnew(&path, sizeof(t_path));
-			new->content_size = level;
-			new->next = tmp;
-			tmp = new;
+			((t_route *)lst->content)->vertex->root = vertex;
+			ft_lstadd(&new, ft_lstnew(lst->content, lst->content_size));
 		}
 		lst = lst->next;
 	}
 	return (new);
 }
 
-t_list				*ft_enqueue(t_list *queue, t_vertex *vertex)
+static t_list	*ft_enqueue(t_list *queue, t_vertex *vertex)
 {
-	t_list	*tmp;
-
-	if (queue == NULL)
-		queue = ft_linkdup(vertex, vertex->status + 1);
-	else
-	{
-		tmp = queue;
-		while (tmp->next)
-			tmp = tmp->next;
-		tmp->next = ft_linkdup(vertex, vertex->status + 1);
-	}
+	ft_lstappend(&queue, ft_linkdup(vertex));
 	return (queue);
 }
 
-t_list				*ft_dequeue(t_list *queue)
+static t_list	*ft_dequeue(t_list *queue)
 {
 	t_list	*q;
 
 	if (!queue)
 		return (NULL);
 	q = queue->next;
-	ft_memdel(&(queue->content));
-	ft_memdel((void **)&queue);
+	ft_lstdelone(&queue, ft_lstrm);
 	return (q);
 }
 
-void				ft_delpath(t_list *path)
-{
-	t_list	*tmp;
-
-	if (!path)
-		return ;
-	while (path)
-	{
-		tmp = path;
-		path = path->next;
-		ft_memdel((void **)&tmp);
-	}
-}
-
-static t_list		*ft_shortestpath(t_graph *graph)
+static t_list	*ft_shortestpath(t_graph *graph)
 {
 	t_list		*path;
-	t_list		*node;
 	t_vertex	*vertex;
 
-	vertex = graph->end;
 	path = NULL;
-	while (vertex)
+	vertex = graph->end;
+	while (vertex && (vertex->root != graph->start))
 	{
-		node = ft_memalloc(sizeof(t_list));
-		node->content = vertex;
-		node->next = path;
-		path = node;
-		if (vertex == graph->start)
-			break;
+		ft_lstadd(&path, ft_lstnew(vertex, 0));
 		vertex = vertex->root;
 	}
+	if (path && (path->content != graph->start))
+		ft_lstdel(&path, NULL);
 	return (path);
 }
 
-t_list				*ft_bfs(t_graph *graph)
+t_list			*ft_bfs(t_graph *graph)
 {
 	t_list		*queue;
-	t_path		*tmp;
+	t_route		*tmp;
 
 	if (!graph)
-		return (0);
+		return (NULL);
 	graph->start->root = NULL;
 	queue = ft_enqueue(NULL, graph->start);
-	tmp = queue->content;
-	while (queue && tmp->curr != graph->end)
-	{
-		tmp = queue->content;
-		if (tmp->curr->status == 0)
-		{
-			tmp->curr->root = tmp->root;
-			tmp->curr->status = (int)queue->content_size;
-			queue = ft_enqueue(queue, tmp->curr);
-		}
-		queue = ft_dequeue(queue);
-	}
 	while (queue)
+	{
+		tmp = (t_route *)queue->content;
+		if (tmp->vertex->status == 0)
+			queue = ft_enqueue(queue, tmp->vertex);
 		queue = ft_dequeue(queue);
+		if (tmp->vertex == graph->end)
+			break ;
+	}
+	ft_lstdel(&queue, ft_lstrm);
 	return (ft_shortestpath(graph));
 }

@@ -12,16 +12,14 @@
 
 #include "lemin.h"
 
-int		ft_iscomment(char **str, int *label)
+int		ft_label(char *str)
 {
-	if (**str == '#')
+	if (*str == '#')
 	{
-		if (ft_strequ(*str, "##start"))
-			*label = 1;
-		if (ft_strequ(*str, "##end"))
-			*label = 2;
-		ft_strdel(str);
-		return (1);
+		if (ft_strequ(str, "##start"))
+			return (1);
+		if (ft_strequ(str, "##end"))
+			return (2);
 	}
 	return (0);
 }
@@ -33,7 +31,7 @@ int			ft_islink(char *str)
 	return (0);
 }
 
-int			ft_validvertex(char *str, char **name, int *x, int *y)
+int			ft_validvertex(char *str, t_vertex *vertex)
 {
 	int		i;
 
@@ -44,20 +42,20 @@ int			ft_validvertex(char *str, char **name, int *x, int *y)
 		i++;
 	if ((str[i] == '\0') || (str[i] == '-'))
 		return (0);
-	*name = ft_strsub(str, 0, (size_t)i);
+	vertex->name = ft_strsub(str, 0, (size_t)i);
 	str += (i + 1);
 	i = (str[0] == '-') ? 1 : 0;
 	while (ft_isdigit(str[i]))
 		i++;
 	if (str[i] != ' ')
 		return (0);
-	*x = ft_atoi(str);
+	vertex->x = ft_atoi(str);
 	str += (i + 1);
 	i = (str[0] == '-') ? 1 : 0;
 	while (ft_isdigit(str[i]))
 		i++;
 	if (str[i] != '\0')
 		return (0);
-	*y = ft_atoi(str);
+	vertex->y = ft_atoi(str);
 	return (1);
 }

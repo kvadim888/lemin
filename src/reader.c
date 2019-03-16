@@ -12,69 +12,47 @@
 
 #include "lemin.h"
 
-int			ft_addvertex(t_graph *graph, t_vertex *vertex, int label)
+int			ft_unique(t_graph *graph, t_vertex *vertex)
 {
-	t_vertex	*tmp;
+	t_list		*tmp;
+	t_vertex	*v;
 
-	if (!graph->head)
-		graph->head = vertex;
-	else
+	if (!graph || !graph->head)
+		return (vertex != NULL);
+	tmp = graph->head;
+	while (tmp)
 	{
-		tmp = graph->head;
-		while (tmp)
-		{
-			if (ft_strequ(vertex->name, tmp->name)
-				|| ((tmp->x == vertex->x) && (tmp->y == vertex->y)))
-				return (0);
-			if (tmp->next == NULL)
-			{
-				tmp->next = vertex;
-				break ;
-			}
-			tmp = tmp->next;
-		}
+		v = (t_vertex *)tmp->content;
+		if (ft_strequ(vertex->name, v->name)
+			|| ((vertex->x == v->x) && (v->y == vertex->y)))
+			return (0);
+		tmp = tmp->next;
 	}
-	if (label == 1)
-		graph->start = vertex;
-	if (label == 2)
-		graph->end = vertex;
 	return (1);
-}
-
-void		ft_delvertex(t_vertex **vertex)
-{
-	if (*vertex)
-	{
-		ft_strdel(&((*vertex)->name));
-		ft_memdel((void **)vertex);
-	}
 }
 
 int 		ft_fillgraph(t_graph *graph, int fd, char **str)
 {
-	t_vertex	*tmp;
+	t_vertex	vertex;
 	int			label;
-	char 		*name;
-	int 		x;
-	int 		y;
 
+	label = 0;
 	while ((get_next_line(fd, str) > 0) && !(ft_islink(*str)))
 	{
-		if (ft_iscomment(str, &label))
-			continue ;
-		name = NULL;
-		tmp = (ft_validvertex(*str, &name, &x, &y))
-				? ft_newvertex(name, x, y) : NULL;
-		ft_strdel(&name);
-		ft_strdel(str);
-		if (tmp == NULL)
-			return (0);
-		if (!ft_addvertex(graph, tmp, label))
+		if (**str != '#')
 		{
-			ft_delvertex(&tmp);
-			return (0);
+			if (!ft_validvertex(*str, &vertex) && !ft_unique(graph, &vertex))
+				return (0);
+			ft_strdel(str);
+			ft_lstadd(&(graph->head), ft_lstnew(&vertex, sizeof(t_vertex)));
+			if (label == 1)
+				graph->start = graph->head->content;
+			if (label == 2)
+				graph->end = graph->head->content;
+			label = 0;
 		}
-		label = 0;
+		else
+			label = (label == 0) ? ft_label(*str) : label;
 	}
 	return (1);
 }
@@ -90,12 +68,10 @@ int 		ft_linkgraph(t_graph *graph, int fd, char **str)
 		if (**str != '#')
 		{
 			if (!ft_islink(*str))
-			{
 				return (0);
-			}
 			name1 = ft_strsub(*str, 0, ft_strchr(*str, '-') - *str);
 			name2 = ft_strchr(*str, '-') + 1;
-			stat = ft_linkvertex(name1, name2, graph->head);
+			stat = ft_linkvertex(graph, name1, name2);
 			ft_strdel(&name1);
 			if (stat == 0)
 				return (0);

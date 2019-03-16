@@ -12,7 +12,7 @@
 
 #include "lemin.h"
 
-static t_list	*ft_makeants(int amount)
+static t_list	*ft_makeants(size_t amount, t_vertex *init)
 {
 	t_list	*ants;
 
@@ -20,16 +20,9 @@ static t_list	*ft_makeants(int amount)
 	ants->content_size = amount;
 	while (--amount > 0)
 	{
-		ft_lstadd(&ants, ft_lstnew(NULL, amount));
+		ft_lstadd(&ants, ft_lstnew(init, 0));
 		ants->content_size = amount;
 	}
-	return (ants);
-}
-
-static t_list	*ft_delants(t_list *ants)
-{
-	while (ants && (ants->content == NULL))
-		ants = ft_dequeue(ants);
 	return (ants);
 }
 
@@ -40,15 +33,18 @@ static void		ft_printstep(t_list *ants)
 
 	curr = ants;
 	flag = 0;
-	while (curr && curr->content)
+	while (curr)
 	{
-		if (flag)
-			ft_printf(" L%d-%s", curr->content_size,
-					  ((t_vertex *)curr->content)->name);
-		else
-			ft_printf("L%d-%s", curr->content_size,
-					  ((t_vertex *)curr->content)->name);
-		flag = 1;
+	    if (curr->content != NULL)
+		{
+			if (flag)
+				ft_printf(" L%d-%s", curr->content_size,
+						  ((t_vertex *)curr->content)->name);
+			else
+				ft_printf("L%d-%s", curr->content_size,
+						  ((t_vertex *)curr->content)->name);
+			flag = 1;
+		}
 		curr = curr->next;
 	}
 	ft_printf("\n");
@@ -56,28 +52,28 @@ static void		ft_printstep(t_list *ants)
 
 void			ft_moveants(t_graph *graph, int amount)
 {
-	t_list		*ants;
-	t_list		*link;
-	t_list		*curr_ant;
+	t_list	*ants;
+	t_list	*curr_ant;
+	t_list	*link;
 
-	ants = ft_makeants(amount);
-	while (ants)
+	ants = ft_makeants(amount, graph->start);
+	curr_ant = ants;
+	link = graph->start->link;
+	while (curr_ant)
 	{
-		link = graph->start->link;
-		curr_ant = ants;
-		while (curr_ant && curr_ant->content)
-		{
-			curr_ant->content = (((t_vertex *)curr_ant->content)->link)
-					? ((t_vertex *)curr_ant->content)->link->content : NULL;
-			curr_ant = curr_ant->next;
-		}
-		while (link && curr_ant)
-		{
-			curr_ant->content = link->content;
-			curr_ant = curr_ant->next;
+		while (link && ((t_vertex *)link->content)->status)
 			link = link->next;
+		if (link)
+		{
+			curr_ant->content = (t_vertex *)(link->content);
+			((t_vertex *)link->content)->status = (int)curr_ant->content_size;
 		}
-		ants = ft_delants(ants);
+
+
 		ft_printstep(ants);
+		curr_ant = curr_ant->next;
 	}
+		curr_ant = curr_ant->next;
+		curr_ant->content = link->content;
+	ft_lstdel(&ants, NULL);
 }

@@ -12,48 +12,86 @@
 
 #include "lemin.h"
 
-void		ft_addflow(t_list *path, int flow)
+void		ft_addflow(t_list *link)
 {
-	t_list		*tmp;
 	t_vertex	*curr;
 	t_vertex	*next;
 	t_list		*curr_link;
 	t_list		*next_link;
 
-	tmp = path;
-	while (tmp->next)
+	curr = (t_vertex *)(link->content);
+	next = (t_vertex *)(link->next->content);
+	curr_link = ft_lstfind(curr->link, next, sizeof(next));
+	next_link = ft_lstfind(next->link, curr, sizeof(curr));
+	((t_route *)curr_link->content)->flow++;
+	((t_route *)next_link->content)->flow--;
+}
+
+int			ft_flowcond(t_list *link, int flow)
+{
+	return (((t_route *)link->content)->flow == flow);
+}
+
+void 		ft_linkreduce(t_graph *graph, int (*cond)(t_list *, int))
+{
+	t_vertex	*vertex;
+	t_list		*link;
+	t_list		*prev;
+
+	vertex = graph->head;
+	while (vertex)
 	{
-		curr = (t_vertex *)(tmp->content);
-		next = (t_vertex *)(tmp->next->content);
+		prev = NULL;
+		link = vertex->link;
+		while (link)
+		{
+			if (cond(link, 1))
+			{
+				prev = link;
+				link = link->next;
+			}
+			else
+				link = ft_cutlink(prev, link, vertex);
+		}
+		vertex = vertex->next;
+	}
+}
 
-		curr_link = curr->link;
-		while (curr_link->content != next)
-			curr_link = curr_link->next;
-		curr_link->content_size += flow;
+void 		ft_graphreduce(t_graph *graph)
+{
+	t_vertex	*vertex;
+	t_vertex	*prev;
 
-		next_link = next->link;
-		while (next_link->content != curr)
-			next_link = next_link->next;
-		next_link->content_size -= flow;
-
-		tmp = tmp->next;
+	prev = NULL;
+	vertex = graph->head;
+	while (vertex)
+	{
+		if ((vertex->link == NULL) &&
+			!(vertex == graph->start || vertex == graph->end))
+			vertex = ft_cutvertex(graph, prev, vertex);
+		else
+		{
+		    prev = vertex;
+			vertex = vertex->next;
+		}
 	}
 }
 
 int			ft_edkarp(t_graph *graph)
 {
-	int			amount;
 	t_list		*path;
 
-	amount = 0;
 	while ((path = ft_bfs(graph)) != NULL)
 	{
-		amount++;
-		ft_addflow(path, 1);
-		ft_delpath(path);
-		ft_resetgraph(graph);
+		ft_lstiter(path, ft_addflow);
+        ft_delpath(&path);
+		ft_resetgraph(graph, 0);
+		ft_lstiter(graph->head, ft_bfsreset);
 	}
-	return (amount);
+	ft_linkreduce(graph, ft_flowcond);
+	ft_graphreduce(graph);
+	ft_graphshow(1,graph);
+	return (1);
 }
 
 t_list		*ft_cutlink(t_list *prev, t_list *link, t_vertex *vertex)
@@ -67,44 +105,16 @@ t_list		*ft_cutlink(t_list *prev, t_list *link, t_vertex *vertex)
 	return (link);
 }
 
-void		ft_delpair(t_vertex *vertex, t_list **link)
-{
-	t_vertex	*pair;
-	t_list		*tmp;
-	t_list		*prev;
-
-	if (!(link && *link))
-		return ;
-	pair = (*link)->content;
-	tmp = pair->link;
-	prev = NULL;
-	while (tmp && tmp->content != vertex)
-	{
-		prev = tmp;
-		tmp = tmp->next;
-	}
-	ft_cutlink(prev, tmp, pair);
-	ft_memdel((void **)link);
-}
-
-t_vertex	*ft_cutvertex(t_vertex *vertex, t_vertex *prev)
+t_vertex	*ft_cutvertex(t_graph *graph, t_vertex *prev, t_vertex *vertex)
 {
 	t_vertex	*tmp;
-	t_list		*link;
 
-	if (!vertex)
-		return (NULL);
 	tmp = vertex;
 	vertex = vertex->next;
 	if (prev)
-		prev->next = vertex->next;
-	while (tmp->link)
-	{
-		link = tmp->link;
-		tmp->link = tmp->link->next;
-		ft_delpair(vertex, &link);
-	}
-	ft_memdel((void **)&(tmp->link));
+		prev->next = vertex;
+	else
+		graph->head = vertex->next;
 	ft_strdel(&(tmp->name));
 	ft_memdel((void **)&tmp);
 	return (vertex);
