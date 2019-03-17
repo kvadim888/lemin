@@ -12,7 +12,7 @@
 
 #include "lemin.h"
 
-t_list	*ft_newvertex(char *name, int x, int y)
+t_list		*ft_newvertex(char *name, int x, int y)
 {
 	t_vertex	vertex;
 
@@ -25,46 +25,57 @@ t_list	*ft_newvertex(char *name, int x, int y)
 	return (ft_lstnew(&vertex, sizeof(t_vertex)));
 }
 
-t_vertex	*ft_findvertex(t_graph *graph, char *name)
+void		ft_delvertex(t_vertex **vertex)
 {
-	t_list		*tmp;
-	t_vertex	*vertex;
+	ft_strdel(&(*vertex)->name);
+	ft_lstdel(&(*vertex)->link, ft_lstrm);
+	ft_memdel((void **)vertex);
+}
 
-	tmp = graph->head;
-	while (tmp)
-	{
-		vertex = tmp->content;
-		if (ft_strequ(vertex->name, name))
-			return (vertex);
-		tmp = tmp->next;
-	}
-	return (NULL);
+static int	ft_namecmp(void const *content1, void const *content2)
+{
+	t_vertex const	*vertex1;
+	char const		*name;
+
+	vertex1 = content1;
+	name = content2;
+	return (ft_strequ(vertex1->name, name));
 }
 
 int			ft_linkvertex(t_graph *graph, char *name1, char *name2)
 {
-	t_vertex	*v1;
-	t_vertex	*v2;
+	t_list		*tmp;
+	t_vertex	*vertex1;
+	t_vertex	*vertex2;
 
-	v1 = ft_findvertex(graph, name1);
-	v2 = ft_findvertex(graph, name2);
-	return (ft_newlink(v1, v2) && ft_newlink(v2, v1));
+	tmp = ft_lstfind(graph->head, name1, ft_namecmp);
+	vertex1 = (tmp) ? tmp->content : NULL;
+	tmp = ft_lstfind(graph->head, name2, ft_namecmp);
+	vertex2 = (tmp) ? tmp->content : NULL;
+	return (ft_newlink(vertex1, vertex2) && ft_newlink(vertex2, vertex1));
+}
+
+static int	ft_routecmp(void const *content1, void const *content2)
+{
+	t_route const	*r1;
+	t_route const	*r2;
+
+	r1 = content1;
+	r2 = content2;
+	return (ft_strequ(r1->vertex->name, r2->vertex->name));
 }
 
 int			ft_newlink(t_vertex *v1, t_vertex *v2)
 {
 	t_route	route;
 
-	if (!(v1 && v2) || ft_lstfind(v1->link, v2, sizeof(v2)))
-		return (0);
 	route.vertex = v2;
 	route.flow = 0;
+	if (!(v1 && v2) || ft_lstfind(v1->link, &route, ft_routecmp))
+		return (0);
 	ft_lstadd(&(v1->link), ft_lstnew(&route, sizeof(route)));
 	return (1);
 }
-
-//		ft_lstiter(graph->head, ft_bfsreset);
-//		ft_lstiter(graph->head, ft_edkarpreset);
 
 void		ft_bfsreset(t_list *vertex)
 {
@@ -77,11 +88,8 @@ void		ft_bfsreset(t_list *vertex)
 
 void		ft_linkreset(t_list *link)
 {
-	if (link)
-	{
-		((t_route *)link->content)->vertex = 0;
+	if (link && link->content)
 		((t_route *)link->content)->flow = 0;
-	}
 }
 
 void		ft_edkarpreset(t_list *vertex)

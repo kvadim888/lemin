@@ -21,104 +21,59 @@
 # define CYAN  "\x1B[36m"
 # define WHITE  "\x1B[37m"
 
-int			ft_graphshow(int out, t_graph *graph)
+int		ft_graphshow(t_graph *graph)
 {
-	t_vertex	*tmp;
-	t_list		*list;
+	t_vertex	*vertex;
+	t_list	*tmp;
+	t_list	*list;
 
 	if (!graph)
 		return (0);
 	tmp = graph->head;
 	while (tmp)
 	{
-		if (graph->start == tmp)
-			dprintf(out, "%sstart->%s", RED, NORM);
-		if (graph->end == tmp)
-			dprintf(out, "%send->%s", RED, NORM);
-		dprintf(out, "%s(%d)%s[%s]%s[%s]%s:",
-				CYAN, tmp->status,
-				BLUE, tmp->name,
-				GREEN, (tmp->root) ? tmp->root->name : NULL, NORM);
-		list = tmp->link;
+		vertex = tmp->content;
+		if (graph->start == vertex)
+			printf("%sstart->%s", RED, NORM);
+		if (graph->end == vertex)
+			printf("%send->%s", RED, NORM);
+		printf("%s(%d)%s[%s]%s[%s]%s:",
+				CYAN, vertex->status,
+				BLUE, vertex->name,
+				GREEN, (vertex->root) ? vertex->root->name : NULL, NORM);
+		list = vertex->link;
 		while (list)
 		{
-			ft_dprintf(out, "[%d|'%s']->", list->content_size, ((t_vertex *)list->content)->name);
+			printf("[%d|'%s']->", ((t_route *)list->content)->flow,
+					((t_route *)list->content)->vertex->name);
+			fflush(stdout);
 			list = list->next;
 		}
-		dprintf(out, "[null]\n");
+		printf("[null]\n");
 		tmp = tmp->next;
 	}
 	return (1);
 }
 
-int			ft_antshow(t_list *ants)
+void	ft_linkshow(t_list *lst)
 {
-	t_list	*tmp;
+	t_route	*route;
 
-	if (!ants)
-		return (0);
-	tmp = ants;
-	while (tmp)
+	if (lst->content)
 	{
-		ft_printf("[%d]->", tmp->content_size);
-		tmp = tmp->next;
+		route = lst->content;
+		ft_printf("[%d|'%s']->", route->flow, route->vertex->name);
 	}
-	return (1);
+	if (lst->next == NULL)
+		ft_printf("[null]\n");
 }
 
-int			ft_queueshow(t_list *queue)
+void	ft_pathshow(t_list *lst)
 {
-	if (!queue)
-		return (0);
-	while (queue)
-	{
-		ft_printf("[%s]->", ((t_vertex *)queue->content)->name);
-		queue = queue->next;
-	}
-	ft_printf("[null]\n");
-	return (1);
-}
-
-int		ft_islinked(t_list *path, t_vertex *vertex)
-{
-	t_list	*p;
-
-	if (!path || !vertex)
-		return (0);
-	p = path;
-	while (p)
-	{
-		if (p->content == vertex)
-			return (1);
-		p = p->next;
-	}
-	return (0);
-}
-
-t_list		*ft_nodedup(t_list *node)
-{
-	t_list	*new;
-
-	new = ft_memalloc(sizeof(t_list));
-	new->content_size = node->content_size;
-	new->content = node->content;
-	new->next = NULL;
-	return (new);
-}
-
-
-t_list		*ft_lstinsert(t_list *list, t_list *new)
-{
-	t_list	*tmp;
-
-	if (!new && !list)
-		return (NULL);
-	if (!list)
-		return (new);
-	if (!new)
-		return (list);
-	tmp = list->next;
-	list->next = new;
-	new->next = tmp;
-	return (new);
+	if (lst->content)
+		ft_printf("[%s]", ((t_vertex *)lst->content)->name);
+	if (lst->next)
+		ft_printf("->");
+	else
+		ft_printf("\n");
 }

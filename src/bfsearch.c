@@ -14,8 +14,9 @@
 
 static t_list	*ft_linkdup(t_vertex *vertex)
 {
-	t_list	*lst;
-	t_list	*new;
+	t_vertex	*root;
+	t_list		*lst;
+	t_list		*new;
 
 	new = NULL;
 	lst = vertex->link;
@@ -23,7 +24,8 @@ static t_list	*ft_linkdup(t_vertex *vertex)
 	{
 		if (((t_route *)lst->content)->flow < 1)
 		{
-			((t_route *)lst->content)->vertex->root = vertex;
+			root = ((t_route *)lst->content)->vertex->root;
+			((t_route *)lst->content)->vertex->root = (root) ? root : vertex;
 			ft_lstadd(&new, ft_lstnew(lst->content, lst->content_size));
 		}
 		lst = lst->next;
@@ -31,19 +33,11 @@ static t_list	*ft_linkdup(t_vertex *vertex)
 	return (new);
 }
 
-static t_list	*ft_enqueue(t_list *queue, t_vertex *vertex)
-{
-	ft_lstappend(&queue, ft_linkdup(vertex));
-	return (queue);
-}
-
 static t_list	*ft_dequeue(t_list *queue)
 {
 	t_list	*q;
 
-	if (!queue)
-		return (NULL);
-	q = queue->next;
+	q = (queue) ? queue->next : NULL;
 	ft_lstdelone(&queue, ft_lstrm);
 	return (q);
 }
@@ -55,7 +49,7 @@ static t_list	*ft_shortestpath(t_graph *graph)
 
 	path = NULL;
 	vertex = graph->end;
-	while (vertex && (vertex->root != graph->start))
+	while (vertex)
 	{
 		ft_lstadd(&path, ft_lstnew(vertex, 0));
 		vertex = vertex->root;
@@ -70,19 +64,18 @@ t_list			*ft_bfs(t_graph *graph)
 	t_list		*queue;
 	t_route		*tmp;
 
-	if (!graph)
-		return (NULL);
-	graph->start->root = NULL;
-	queue = ft_enqueue(NULL, graph->start);
+	queue = NULL;
+	ft_lstappend(&queue, ft_linkdup(graph->start));
 	while (queue)
 	{
 		tmp = (t_route *)queue->content;
 		if (tmp->vertex->status == 0)
-			queue = ft_enqueue(queue, tmp->vertex);
-		queue = ft_dequeue(queue);
+			ft_lstappend(&queue, ft_linkdup(tmp->vertex));
 		if (tmp->vertex == graph->end)
 			break ;
+		queue = ft_dequeue(queue);
 	}
+	graph->start->root = NULL;
 	ft_lstdel(&queue, ft_lstrm);
 	return (ft_shortestpath(graph));
 }

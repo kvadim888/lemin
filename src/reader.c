@@ -42,8 +42,10 @@ int 		ft_fillgraph(t_graph *graph, int fd, char **str)
 		if (**str != '#')
 		{
 			if (!ft_validvertex(*str, &vertex) && !ft_unique(graph, &vertex))
+			{
+				ft_strdel(str);
 				return (0);
-			ft_strdel(str);
+			}
 			ft_lstadd(&(graph->head), ft_lstnew(&vertex, sizeof(t_vertex)));
 			if (label == 1)
 				graph->start = graph->head->content;
@@ -53,6 +55,7 @@ int 		ft_fillgraph(t_graph *graph, int fd, char **str)
 		}
 		else
 			label = (label == 0) ? ft_label(*str) : label;
+		ft_strdel(str);
 	}
 	return (1);
 }

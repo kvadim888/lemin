@@ -48,13 +48,10 @@ int						ft_fillgraph(t_graph *graph, int fd, char **str);
 int						ft_linkgraph(t_graph *graph, int fd, char **str);
 int						ft_readfile(t_graph *graph, int fd);
 
+void					ft_addflow(t_list *link);
+
 t_list					*ft_bfs(t_graph *graph);
 int						ft_edkarp(t_graph *graph);
-
-t_list		*ft_cutlink(t_list *prev, t_list *link, t_vertex *vertex);
-t_vertex	*ft_cutvertex(t_graph *graph, t_vertex *prev, t_vertex *vertex);
-
-t_list					*ft_trace(t_vertex *vertex, t_list *prev, t_list **trace);
 
 int						ft_label(char *str);
 int						ft_islink(char *str);
@@ -73,10 +70,12 @@ void					ft_edkarpreset(t_list *vertex);
  *  TO DELETE -- additional functions for convenience
  */
 
-int						ft_graphshow(int out, t_graph *graph);
+int						ft_graphshow(t_graph *graph);
 int						ft_queueshow(t_list *queue);
 t_list					*ft_pathsplit(t_list *path);
 int						ft_antshow(t_list *ants);
 
+void					ft_linkshow(t_list *lst);
+void					ft_pathshow(t_list *lst);
 
 #endif
