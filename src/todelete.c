@@ -23,36 +23,32 @@
 
 int		ft_graphshow(t_graph *graph)
 {
-	t_vertex	*vertex;
-	t_list	*tmp;
-	t_list	*list;
-
-	if (!graph)
-		return (0);
-	tmp = graph->head;
-	while (tmp)
+	if (graph->head)
 	{
-		vertex = tmp->content;
-		if (graph->start == vertex)
-			printf("%sstart->%s", RED, NORM);
-		if (graph->end == vertex)
-			printf("%send->%s", RED, NORM);
-		printf("%s(%d)%s[%s]%s[%s]%s:",
-				CYAN, vertex->status,
-				BLUE, vertex->name,
-				GREEN, (vertex->root) ? vertex->root->name : NULL, NORM);
-		list = vertex->link;
-		while (list)
-		{
-			printf("[%d|'%s']->", ((t_route *)list->content)->flow,
-					((t_route *)list->content)->vertex->name);
-			fflush(stdout);
-			list = list->next;
-		}
-		printf("[null]\n");
-		tmp = tmp->next;
+		ft_lstiter(graph->head, ft_vertexshow);
+		return (1);
 	}
-	return (1);
+	return (0);
+}
+
+void	ft_vertexshow(t_list *lst)
+{
+	t_vertex	*vertex;
+
+	vertex = lst->content;
+//	if (graph->start == vertex)
+//		printf("%sstart->%s", RED, NORM);
+//	if (graph->end == vertex)
+//		printf("%send->%s", RED, NORM);
+	printf("%s(%d)%s[%s]%s[%s]%s:",
+		   CYAN, vertex->status,
+		   BLUE, vertex->name,
+		   GREEN, (vertex->root) ? vertex->root->name : NULL, NORM);
+	fflush(stdout);
+	if (vertex->link)
+		ft_lstiter(vertex->link, ft_linkshow);
+	else
+		printf("[null]\n");
 }
 
 void	ft_linkshow(t_list *lst)
@@ -65,7 +61,7 @@ void	ft_linkshow(t_list *lst)
 		ft_printf("[%d|'%s']->", route->flow, route->vertex->name);
 	}
 	if (lst->next == NULL)
-		ft_printf("[null]\n");
+		printf("[null]\n");
 }
 
 void	ft_pathshow(t_list *lst)
@@ -75,5 +71,5 @@ void	ft_pathshow(t_list *lst)
 	if (lst->next)
 		ft_printf("->");
 	else
-		ft_printf("\n");
+		printf("\n");
 }

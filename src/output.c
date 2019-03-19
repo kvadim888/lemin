@@ -12,56 +12,39 @@
 
 #include "lemin.h"
 
-static t_list	*ft_makeants(size_t amount, t_vertex *init)
+static void		ft_printstep(t_list *lst)
 {
-	t_list	*ants;
+	t_ant	*ant;
 
-	ants = ft_lstnew(NULL, 0);
-	ants->content_size = amount;
-	while (--amount > 0)
-	{
-		ft_lstadd(&ants, ft_lstnew(init, 0));
-		ants->content_size = amount;
-	}
-	return (ants);
+	ant = lst->content;
+	if ((ant == NULL) || (ant->vertex == NULL))
+		return ;
+	ft_printf("L%d-%s", ant->number, ant->vertex->name);
+	ant = lst->next->content;
+	if (ant->vertex != NULL)
+		ft_printf(" ");
+	else
+		ft_printf("\n");
 }
 
-static void		ft_printstep(t_list *ants)
-{
-	int		flag;
-	t_list	*curr;
-
-	curr = ants;
-	flag = 0;
-	while (curr)
-	{
-	    if (curr->content != NULL)
-		{
-			if (flag)
-				ft_printf(" L%d-%s", curr->content_size,
-						  ((t_vertex *)curr->content)->name);
-			else
-				ft_printf("L%d-%s", curr->content_size,
-						  ((t_vertex *)curr->content)->name);
-			flag = 1;
-		}
-		curr = curr->next;
-	}
-	ft_printf("\n");
-}
-
-void			ft_moveants(t_graph *graph, int amount)
+void			ft_moveants(t_graph *graph, int num)
 {
 	t_list	*ants;
 	t_list	*curr_ant;
 	t_list	*link;
 
-	ants = ft_makeants(amount, graph->start);
+	ants = NULL;
+	while (num-- > 0)
+		ft_lstadd(&ants, ft_lstnew(&(t_ant){graph->start, num}, sizeof(t_ant)));
 	curr_ant = ants;
 	link = graph->start->link;
 	while (curr_ant)
 	{
-		while (link && ((t_vertex *)link->content)->status)
+		while (link)
+		{
+			next_vertex = ((t_route *)link->content)->vertex;
+			((t_ant *)ants->content)->vertex = next_vertex;
+		}
 			link = link->next;
 		if (link)
 		{

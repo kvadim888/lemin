@@ -38,6 +38,12 @@ typedef struct			s_route
 	int					flow;
 }						t_route;
 
+typedef struct			s_ant
+{
+	struct s_vertex		*vertex;
+	int					number;
+}						t_ant;
+
 t_list					*ft_newvertex(char *name, int x, int y);
 int						ft_linkvertex(t_graph *graph, char *name1, char *name2);
 int						ft_newlink(t_vertex *v1, t_vertex *v2);
@@ -51,7 +57,7 @@ int						ft_readfile(t_graph *graph, int fd);
 void					ft_addflow(t_list *link);
 
 t_list					*ft_bfs(t_graph *graph);
-int						ft_edkarp(t_graph *graph);
+void					ft_edkarp(t_graph *graph);
 
 int						ft_label(char *str);
 int						ft_islink(char *str);
@@ -60,6 +66,13 @@ int						ft_validvertex(char *str, t_vertex *vertex);
 void					ft_delpath(t_list **path);
 
 void					ft_moveants(t_graph *graph, int amount);
+
+void		ft_addflow(t_list *link);
+t_list		*ft_cutlink(t_list *link);
+void 		ft_linkreduce(t_list *lst);
+t_list		*ft_cutvertex(t_graph *graph, t_list *vertex);
+void 		ft_graphreduce(t_graph *graph);
+void		ft_vertexshow(t_list *lst);
 
 
 void					ft_bfsreset(t_list *vertex);

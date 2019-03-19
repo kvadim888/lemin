@@ -35,28 +35,32 @@ void		ft_addflow(t_list *link)
 	}
 }
 
-t_list		*ft_cutlink(t_list *link)
+void 		ft_linkreduce(t_list *vert_lst)
 {
-	t_list	*next;
-
-	next = link->next;
-	while (next && (((t_route *)next->content)->flow != 1))
-	{
-		link->next = next->next;
-		ft_lstdelone(&next, ft_lstrm);
-		next = link->next;
-	}
-	return (link);
-}
-
-void 		ft_linkreduce(t_list *lst)
-{
+	t_list	*prev;
+	t_list	*tmp;
 	t_list	*link;
 
-	link = ((t_vertex *)lst->content)->link;
-	((t_vertex *)lst->content)->link = ft_lstmap(link, ft_cutlink);
-	link = ((t_vertex *)lst->content)->link;
-	ft_lstiter(link, ft_linkshow);
+	prev = NULL;
+	link = ((t_vertex *)vert_lst->content)->link;
+	while (link)
+	{
+		if (((t_route *)link->content)->flow != 1)
+		{
+			tmp = link;
+			link = link->next;
+			ft_lstdelone(&tmp, ft_lstrm);
+			if (prev)
+				prev->next = link;
+			else
+				((t_vertex *)vert_lst->content)->link = link;
+		}
+		else
+		{
+			prev = link;
+			link = link->next;
+		}
+	}
 }
 
 t_list		*ft_cutvertex(t_graph *graph, t_list *vertex)
@@ -80,33 +84,15 @@ t_list		*ft_cutvertex(t_graph *graph, t_list *vertex)
 	return (vertex);
 }
 
-void 		ft_graphreduce(t_graph *graph)
-{
-	t_list	vertex;
-	t_list	tmp;
-
-	vertex.next = graph->head;
-	tmp.next = vertex.next;
-	while (tmp.next)
-		tmp.next = ft_cutvertex(graph, &tmp);
-	graph->head = vertex.next;
-}
-
-int			ft_edkarp(t_graph *graph)
+void		ft_edkarp(t_graph *graph)
 {
 	t_list		*path;
 
 	while ((path = ft_bfs(graph)) != NULL)
 	{
 		ft_lstiter(path, ft_addflow);
-		ft_graphshow(graph);
 		ft_lstiter(graph->head, ft_bfsreset);
         ft_lstdel(&path, ft_lstrm);
 	}
-	ft_lstiter(((t_vertex *)graph->head->content)->link, ft_linkshow);
 	ft_lstiter(graph->head, ft_linkreduce);
-	ft_lstiter(((t_vertex *)graph->head->content)->link, ft_linkshow);
-//	ft_graphreduce(graph);
-	ft_graphshow(graph);
-	return (1);
 }
