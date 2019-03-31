@@ -63,25 +63,13 @@ void 		ft_linkreduce(t_list *vert_lst)
 	}
 }
 
-t_list		*ft_cutvertex(t_graph *graph, t_list *vertex)
+void		ft_bfsreset(t_list *vertex)
 {
-	t_vertex	*v;
-	t_list		*next;
-
-	next = vertex->next;
-	v = next->content;
-	if ((v->link == NULL) && (v != graph->start) && (v != graph->end))
+	if (vertex)
 	{
-		vertex->next = next->next;
-		ft_lstdelone(&next, ft_lstrm);
-		next = vertex->next;
+		((t_vertex *)vertex->content)->status = 0;
+		((t_vertex *)vertex->content)->root = NULL;
 	}
-	else
-	{
-		vertex = vertex->next;
-		vertex->next = next->next;
-	}
-	return (vertex);
 }
 
 void		ft_edkarp(t_graph *graph)

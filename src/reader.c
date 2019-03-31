@@ -10,25 +10,32 @@
 /*                                                                            */
 /* ************************************************************************** */
 
+
 #include "lemin.h"
 
-int			ft_unique(t_graph *graph, t_vertex *vertex)
+int			ft_readants(int fd, char **str)
 {
-	t_list		*tmp;
-	t_vertex	*v;
+	int		ants;
+	int		i;
 
-	if (!graph || !graph->head)
-		return (vertex != NULL);
-	tmp = graph->head;
-	while (tmp)
-	{
-		v = (t_vertex *)tmp->content;
-		if (ft_strequ(vertex->name, v->name)
-			|| ((vertex->x == v->x) && (v->y == vertex->y)))
-			return (0);
-		tmp = tmp->next;
-	}
-	return (1);
+	if ((get_next_line(fd, str) < 0) || ft_strlen(*str) == 0)
+		return (0);
+	i = 0;
+	while (ft_isdigit((*str)[i]))
+		i++;
+	ants = (i == ft_strlen(*str)) ? ft_atoi(*str) : 0;
+	ft_strdel(str);
+	return (ants);
+}
+
+static int	ft_cmp(void const *vertex1, void const *vertex2)
+{
+	if (ft_strequ(((t_vertex*)vertex1)->name, ((t_vertex*)vertex2)->name))
+		return (1);
+	if (((t_vertex*)vertex1)->x == ((t_vertex*)vertex2)->x &&
+		((t_vertex*)vertex1)->y == ((t_vertex*)vertex2)->y)
+		return (1);
+	return (0);
 }
 
 int 		ft_fillgraph(t_graph *graph, int fd, char **str)
@@ -41,7 +48,8 @@ int 		ft_fillgraph(t_graph *graph, int fd, char **str)
 	{
 		if (**str != '#')
 		{
-			if (!ft_validvertex(*str, &vertex) && !ft_unique(graph, &vertex))
+			ft_readvertex(*str, &vertex);
+			if (ft_lstfind(graph->head, &vertex, ft_cmp))
 			{
 				ft_strdel(str);
 				return (0);
@@ -88,23 +96,22 @@ int 		ft_linkgraph(t_graph *graph, int fd, char **str)
 
 int			ft_readfile(t_graph *graph, int fd)
 {
-	int		i;
 	int		stat;
 	char	*str;
 	int		ants;
 
-	if (get_next_line(fd, &str) < 0)
-		return (0);
-	i = 0;
-	while (ft_isdigit(str[i]))
-		i++;
-	ants = (str[i] == '\0') ? ft_atoi(str) : 0;
-	ft_strdel(&str);
-	if (ants <= 0)
-		return (0);
-	stat = 0;
-	if (ft_fillgraph(graph, fd, &str))
+	if ((ants = ft_readants(fd, &str)) == 0)
+		ft_error(ANTS);
+	if ((stat = ft_fillgraph(graph, fd, &str)) == 1)
 		stat = ft_linkgraph(graph, fd, &str);
+	// TODO: check begin and end
+	// TODO: check link between begin and end
 	ft_strdel(&str);
 	return ((stat) ? ants : 0);
+}
+
+void ft_error(char const *msg)
+{
+	ft_dprintf(2, "ERROR: %s\n", msg);
+	exit(0);
 }

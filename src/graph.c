@@ -12,26 +12,6 @@
 
 #include "lemin.h"
 
-t_list		*ft_newvertex(char *name, int x, int y)
-{
-	t_vertex	vertex;
-
-	vertex.name = ft_strdup(name);
-	vertex.x = x;
-	vertex.y = y;
-	vertex.status = 0;
-	vertex.root = NULL;
-	vertex.link = NULL;
-	return (ft_lstnew(&vertex, sizeof(t_vertex)));
-}
-
-void		ft_delvertex(t_vertex **vertex)
-{
-	ft_strdel(&(*vertex)->name);
-	ft_lstdel(&(*vertex)->link, ft_lstrm);
-	ft_memdel((void **)vertex);
-}
-
 static int	ft_namecmp(void const *content1, void const *content2)
 {
 	t_vertex const	*vertex1;
@@ -75,29 +55,4 @@ int			ft_newlink(t_vertex *v1, t_vertex *v2)
 		return (0);
 	ft_lstadd(&(v1->link), ft_lstnew(&route, sizeof(route)));
 	return (1);
-}
-
-void		ft_bfsreset(t_list *vertex)
-{
-	if (vertex)
-	{
-		((t_vertex *)vertex->content)->status = 0;
-		((t_vertex *)vertex->content)->root = NULL;
-	}
-}
-
-void		ft_linkreset(t_list *link)
-{
-	if (link && link->content)
-		((t_route *)link->content)->flow = 0;
-}
-
-void		ft_edkarpreset(t_list *vertex)
-{
-	if (vertex)
-	{
-		((t_vertex *)vertex->content)->status = 0;
-		((t_vertex *)vertex->content)->root = NULL;
-		ft_lstiter(((t_vertex *)vertex->content)->link, ft_linkreset);
-	}
 }

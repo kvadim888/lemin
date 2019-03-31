@@ -22,8 +22,6 @@ int		main(int ac, char **av)
 	int			fd;
 	int			ants;
 	t_graph		graph;
-	t_list		*path;
-	t_list		**tmp;
 
 	fd = open(av[1], O_RDONLY);
 	ants = ft_readfile(&graph, fd);
@@ -36,7 +34,7 @@ int		main(int ac, char **av)
 	ft_lstiter(graph.head, ft_vertexshow);
 	ft_edkarp(&graph);
 	ft_lstiter(graph.head, ft_vertexshow);
-	ft_moveants(&graph,ants);
+//	ft_lemin(&graph,ants);
 	system("leaks lem-in");
 	return (0);
 }

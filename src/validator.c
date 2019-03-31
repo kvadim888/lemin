@@ -24,38 +24,58 @@ int		ft_label(char *str)
 	return (0);
 }
 
-int			ft_islink(char *str)
+int		ft_islink(char *str)
 {
-	if ((*str != '#') && !ft_strchr(str, ' ') && ft_strchr(str, '-'))
-		return (1);
-	return (0);
+	return ((*str != '#') && !ft_strchr(str, ' ') && ft_strchr(str, '-'));
 }
 
-int			ft_validvertex(char *str, t_vertex *vertex)
+int 	ft_isnumber(char *num)
+{
+	char *start;
+
+	start = num;
+	while (ft_iswhspace(*num))
+		num++;
+	if (*num == '-')
+		num++;
+	while (ft_isdigit(*num))
+		num++;
+	if (ft_iswhspace(*num) || *num == '\0')
+		return ((int)(num - start));
+	else
+		return (0);
+}
+
+int		ft_readvertex(char *str, t_vertex *vertex)
 {
 	int		i;
+	int		len;
 
-	if (str[0] == 'L')
-		return (0);
+	vertex->status = 0;
+	vertex->root = NULL;
+	vertex->link = NULL;
 	i = 0;
-	while ((str[i] != '\0') && (str[i] != ' ') && (str[i] != '-'))
+	while (ft_isprint(str[i]) && !ft_iswhspace(str[i]) && (str[i] != '-'))
 		i++;
-	if ((str[i] == '\0') || (str[i] == '-'))
+	if (!ft_iswhspace(str[i]))
 		return (0);
 	vertex->name = ft_strsub(str, 0, (size_t)i);
-	str += (i + 1);
-	i = (str[0] == '-') ? 1 : 0;
-	while (ft_isdigit(str[i]))
-		i++;
-	if (str[i] != ' ')
+	str += i;
+	if ((len = ft_isnumber(str)) > 0)
+		vertex->x = ft_atoi(str);
+	else
 		return (0);
-	vertex->x = ft_atoi(str);
-	str += (i + 1);
-	i = (str[0] == '-') ? 1 : 0;
-	while (ft_isdigit(str[i]))
-		i++;
-	if (str[i] != '\0')
+	str += len;
+	if ((len = ft_isnumber(str)) > 0)
+		vertex->y = ft_atoi(str);
+	else
 		return (0);
-	vertex->y = ft_atoi(str);
-	return (1);
+	str += len;
+	while (ft_iswhspace(*str))
+		str++;
+	vertex->root = NULL;
+	vertex->link = NULL;
+	vertex->status = NULL;
+	return (*str == '\0');
 }
+
